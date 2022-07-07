@@ -4,8 +4,8 @@ import math
 
 class Html:
     HEADERS = [
-        'Name',
         'Namespace',
+        'Name',
         'Type',
         'Memory Max',
         'Memory Avg',
@@ -27,6 +27,7 @@ class Html:
     def __init__(self):
         self.filename = os.environ.get('OUTPUT_HTML_FILE', 'resource_analyse.html')
         self.soup = BeautifulSoup("", "html5lib")
+        self.setStyle()
 
     def setBody(self, workloadList):
         table = self.soup.new_tag("table")
@@ -36,6 +37,25 @@ class Html:
 
         for workload in workloadList:
              table.append(self.tableDataRow(workload))
+
+    def setStyle(self):
+        style = self.soup.new_tag("style")
+        style['type'] = "text/css"
+        style.string = '''
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+.memory {
+  text-align: center;
+}
+.cpu {
+  text-align: center;
+}
+tr:hover {background-color: #D6EEEE;}
+'''
+        
+        self.soup.head.append(style)
 
     def tableHeaderRow(self):
         tr = self.soup.new_tag("tr")
@@ -51,35 +71,45 @@ class Html:
     def tableDataRow(self, workload):
         tr = self.soup.new_tag("tr")
 
-        self.appendTd(tr, workload.name)
         self.appendTd(tr, workload.namespace)
+        self.appendTd(tr, workload.name)
         self.appendTd(tr, workload.type)
 
-        self.appendTd(tr, workload.memoryMax)
-        self.appendTd(tr, workload.memoryAvg)
-        self.appendTd(tr, workload.memoryMin)
-        self.appendTd(tr, workload.memoryRequest)
-        self.appendTd(tr, workload.properMemoryRequest(), len(workload.analyseMemoryRequest())) # something to notice -> set bgcolor
-        self.appendTd(tr, workload.memoryLimit)
-        self.appendTd(tr, workload.properMemoryLimit(), len(workload.analyseMemoryLimit())) # something to notice -> set bgcolor
+        self.appendTd(tr, workload.memoryMax, "memory")
+        self.appendTd(tr, workload.memoryAvg, "memory")
+        self.appendTd(tr, workload.memoryMin, "memory")
+        self.appendTd(tr, workload.memoryRequest, "memory")
+        self.appendTd(tr, workload.properMemoryRequest(), "memory", self.tdBgColor(len(workload.analyseMemoryRequest()) )) # something to notice -> set bgcolor
+        self.appendTd(tr, workload.memoryLimit, "memory")
+        self.appendTd(tr, workload.properMemoryLimit(), "memory", self.tdBgColor(len(workload.analyseMemoryLimit()))) # something to notice -> set bgcolor
 
-        self.appendTd(tr, workload.cpuMax)
-        self.appendTd(tr, workload.cpuAvg)
-        self.appendTd(tr, workload.cpuMin)
-        self.appendTd(tr, workload.cpuRequest)
-        self.appendTd(tr, workload.properCpuRequest(), len(workload.analyseCpuRequest())) # something to notice -> set bgcolor
-        self.appendTd(tr, workload.cpuLimit)
-        self.appendTd(tr, workload.properCpuLimit(), len(workload.analyseCpuLimit())) # something to notice -> set bgcolor
+        self.appendTd(tr, workload.cpuMax, "cpu")
+        self.appendTd(tr, workload.cpuAvg, "cpu")
+        self.appendTd(tr, workload.cpuMin, "cpu")
+        self.appendTd(tr, workload.cpuRequest, "cpu")
+        self.appendTd(tr, workload.properCpuRequest(), "cpu", self.tdBgColor(len(workload.analyseCpuRequest()))) # something to notice -> set bgcolor
+        self.appendTd(tr, workload.cpuLimit, "cpu")
+        self.appendTd(tr, workload.properCpuLimit(), "cpu", self.tdBgColor(len(workload.analyseCpuLimit()))) # something to notice -> set bgcolor
 
         self.appendTd(tr, workload.analyseMessage())
 
         return tr
 
-    def appendTd(self, tr, content, setColor = 0) : 
+    def tdBgColor(self, setBgColor = 0):
+        if setBgColor :
+            return 'red'
+
+        return ''
+        
+
+    def appendTd(self, tr, content, setClass = "", setBgColor = "") : 
         td = self.soup.new_tag("td")
         self.addText(td, content)
-        if setColor :
-            td['bgcolor'] = "red"
+        if setBgColor :
+            td['bgcolor'] = setBgColor
+
+        if setClass :
+            td['class'] = setClass
 
         tr.append(td)
 
@@ -101,9 +131,8 @@ class Html:
         td.string = str(content)
 
     def dump(self):
-        soup = BeautifulSoup("", "html5lib")
-        print (soup.prettify())
+        print (self.soup.prettify())
 
     def writeHtml(self):
         with open(self.filename, "w", encoding='utf-8') as file:
-            file.write(str(self.soup))
+            file.write(str(self.soup.prettify()))
