@@ -85,8 +85,8 @@ class Manager:
         self.workloads.analyseMemoryBalance()
         self.workloads.analyseCpuBalance()
 
-    def outputHtlm(self):
-        html = Html()
+    def outputHtlm(self, footer):
+        html = Html(footer)
         html.setBody(self.workloads.getWorkloadListByNameAndTypeAndNamespace())
         html.writeHtml()
 

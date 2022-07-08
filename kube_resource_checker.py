@@ -10,17 +10,20 @@ args = Args()
 
 load_dotenv(args.getEnvFileName())
 
-range=os.environ.get('RANGE', '1w')
-
 hostapi=os.environ.get('HOSTAPI')
-
-print (f"Collect data from '{hostapi}' on range '{range}'")
+range=os.environ.get('RANGE', '1w')
 
 session = auth.dex.getSession()
 
+infoMessage = f"{args.getInfo()}\nMetrics is collected from '{hostapi}' on range '{range}'"
+print (infoMessage)
+
 manager = Manager(session, hostapi, range)
 manager.collectData()
-manager.printResults()
-#manager.analyse()
+
+if args.args.debug :
+    manager.printResults()
+
+print("Summary:")
 manager.printBalance()
-manager.outputHtlm()
+manager.outputHtlm(infoMessage)

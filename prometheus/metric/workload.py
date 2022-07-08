@@ -45,7 +45,7 @@ class Workload:
             ret.append( "Memory request has not set, proper value would be %sMi" % ( math.ceil(properRequest)) )
             return ret
 
-        if self.memoryRequest < properRequest :
+        if self.memoryRequest < self.memoryAvg :
             ret.append( "Memory request is too small: request is %sMi, it should be %sMi" % ( round(self.memoryRequest, 2), math.ceil(properRequest)) )
 
         if self.memoryRequest > self.memoryMax and self.memoryRequest > math.ceil(properRequest) :
@@ -79,7 +79,7 @@ class Workload:
             ret.append( "Cpu request has not set, proper value would be %sm" % ( math.ceil(properRequest)) )
             return ret
 
-        if self.cpuRequest < properRequest :
+        if self.cpuRequest < self.cpuAvg :
             ret.append( "Cpu request is too small: request is %sm, it should be %sm" % ( round(self.cpuRequest, 2), math.ceil(properRequest)) )
 
         if self.cpuRequest > self.cpuMax and self.cpuRequest > math.ceil(properRequest) :
@@ -108,22 +108,31 @@ class Workload:
         if self.memoryAvg is None:
             return None
 
-        return self.memoryAvg * self.MEMORY_REQUEST_RESERVE_FACTOR
+        return self.roundProperToHuman(self.memoryAvg * self.MEMORY_REQUEST_RESERVE_FACTOR)
 
     def properMemoryLimit(self) :
         if self.memoryMax is None:
             return None
 
-        return self.memoryMax * self.MEMORY_REQUEST_MAXIMUM_FACTOR
+        return self.roundProperToHuman(self.memoryMax * self.MEMORY_REQUEST_MAXIMUM_FACTOR)
 
     def properCpuRequest(self) :
         if self.cpuAvg is None:
             return None
 
-        return self.cpuAvg * self.CPU_REQUEST_RESERVE_FACTOR
+        return self.roundProperToHuman(self.cpuAvg * self.CPU_REQUEST_RESERVE_FACTOR)
 
     def properCpuLimit(self) :
         if self.cpuMax is None:
             return None
 
-        return self.cpuMax * self.CPU_REQUEST_MAXIMUM_FACTOR
+        return self.roundProperToHuman(self.cpuMax * self.CPU_REQUEST_MAXIMUM_FACTOR)
+
+    def roundProperToHuman(self, value):
+        valueInt = math.ceil(value)
+        if valueInt <= 5 : # value is 0..5 round up to  5
+            return 5
+        if valueInt < 1000:  # value is 6..999 round up to 10
+            return math.ceil(value/10)*10
+        
+        return math.ceil(value/100)*100 # value is equal or over 1000, round up to 100

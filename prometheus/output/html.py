@@ -7,27 +7,28 @@ class Html:
         'Namespace',
         'Name',
         'Type',
-        'Memory Max',
-        'Memory Avg',
-        'Memory Min',
-        'Memory Req',
-        'Memory Req Target',
-        'Memory Limit',
-        'Memory Limit Target',
-        'Cpu Max',
-        'Cpu Avg',
-        'Cpu Min',
-        'Cpu Req',
-        'Cpu Req Target',
-        'Cpu Limit',
-        'Cpu Limit Target',
+        'Memory Max (MiB)',
+        'Memory Avg (MiB)',
+        'Memory Min (MiB)',
+        'Memory Req (MiB)',
+        'Memory Req Target (MiB)',
+        'Memory Limit (MiB)',
+        'Memory Limit Target (MiB)',
+        'Cpu Max (m)',
+        'Cpu Avg (m)',
+        'Cpu Min (m)',
+        'Cpu Req (m)',
+        'Cpu Req Target (m)',
+        'Cpu Limit (m)',
+        'Cpu Limit Target (m)',
         'Message',
     ]
 
-    def __init__(self):
+    def __init__(self, footer = ""):
         self.filename = os.environ.get('OUTPUT_HTML_FILE', 'resource_analyse.html')
         self.soup = BeautifulSoup("", "html5lib")
         self.setStyle()
+        self.footer = footer
 
     def setBody(self, workloadList):
         table = self.soup.new_tag("table")
@@ -37,6 +38,8 @@ class Html:
 
         for workload in workloadList:
              table.append(self.tableDataRow(workload))
+
+        self.setFooter()
 
     def setStyle(self):
         style = self.soup.new_tag("style")
@@ -56,6 +59,18 @@ tr:hover {background-color: #D6EEEE;}
 '''
         
         self.soup.head.append(style)
+
+    def setFooter(self):
+        if not self.footer:
+            return
+
+        footer = self.soup.new_tag("footer")
+        self.soup.body.append(footer)
+
+        for line in self.footer.split("\n") :
+            p = self.soup.new_tag("p")
+            p.string = line
+            footer.append(p)
 
     def tableHeaderRow(self):
         tr = self.soup.new_tag("tr")
