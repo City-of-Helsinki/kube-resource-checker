@@ -22,7 +22,7 @@ def test_analyse_correct_values(metric_memory):
 
 def test_analyse_memory_request_low(metric_memory):
     workload = metric_memory
-    workload.memoryRequest = 9
+    workload.memoryRequest = 7
     ret = workload.analyseMemoryRequest()
 
     assert len(ret) == 1
