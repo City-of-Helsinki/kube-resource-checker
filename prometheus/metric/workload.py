@@ -1,9 +1,11 @@
 import math
 
 class Workload:
-    MEMORY_REQUEST_RESERVE_FACTOR = 1.2
+    MEMORY_REQUEST_RESERVE_FACTOR = 1.0
+    MEMORY_REQUEST_RESERVE_FACTOR_NOTIFY = 1.5 # notify message for user
     MEMORY_REQUEST_MAXIMUM_FACTOR = 2
-    CPU_REQUEST_RESERVE_FACTOR = 1.5
+    CPU_REQUEST_RESERVE_FACTOR = 1.2
+    CPU_REQUEST_RESERVE_FACTOR_NOTIFY = 1.5 # notify message for user
     CPU_REQUEST_MAXIMUM_FACTOR = 2
 
     memoryMax = None
@@ -48,7 +50,7 @@ class Workload:
         if self.memoryRequest < self.memoryAvg :
             ret.append( "Memory request is too small: request is %sMi, it should be %sMi" % ( round(self.memoryRequest, 2), math.ceil(properRequest)) )
 
-        if self.memoryRequest > self.memoryMax and self.memoryRequest > math.ceil(properRequest) :
+        if self.memoryRequest > self.memoryMax and self.memoryRequest > (math.ceil(properRequest) * self.MEMORY_REQUEST_RESERVE_FACTOR_NOTIFY):
             ret.append( "Memory request is exaggerated: request is %sMi, it should be %sMi" % ( round(self.memoryRequest, 2), math.ceil(properRequest)) )
 
         return ret
@@ -65,7 +67,7 @@ class Workload:
 
         # round up to integer
         if math.ceil(self.memoryLimit) <= math.ceil(self.memoryMax) :
-            ret.append( "Memory limit has reached: limit is %sMi" % ( round(self.memoryLimit, 2)) )
+            ret.append( "Memory limit has reached: limit is %sMi. Is memory leak somewhere?" % ( round(self.memoryLimit, 2)) )
 
         return ret
 
@@ -82,7 +84,7 @@ class Workload:
         if self.cpuRequest < self.cpuAvg :
             ret.append( "Cpu request is too small: request is %sm, it should be %sm" % ( round(self.cpuRequest, 2), math.ceil(properRequest)) )
 
-        if self.cpuRequest > self.cpuMax and self.cpuRequest > math.ceil(properRequest) :
+        if self.cpuRequest > self.cpuMax and self.cpuRequest > (math.ceil(properRequest) * self.CPU_REQUEST_RESERVE_FACTOR_NOTIFY ) :
             ret.append( "Cpu request is exaggerated: request is %sm, it should be %sm" % ( round(self.cpuRequest, 2), math.ceil(properRequest)) )
 
         return ret
@@ -108,13 +110,13 @@ class Workload:
         if self.memoryAvg is None:
             return None
 
-        return self.roundProperToHuman(self.memoryAvg * self.MEMORY_REQUEST_RESERVE_FACTOR)
+        return self.roundProperToHuman(self.memoryAvg * self.MEMORY_REQUEST_RESERVE_FACTOR, 10)
 
     def properMemoryLimit(self) :
         if self.memoryMax is None:
             return None
 
-        return self.roundProperToHuman(self.memoryMax * self.MEMORY_REQUEST_MAXIMUM_FACTOR)
+        return self.roundProperToHuman(self.memoryMax * self.MEMORY_REQUEST_MAXIMUM_FACTOR, 50)
 
     def properCpuRequest(self) :
         if self.cpuAvg is None:
@@ -126,13 +128,15 @@ class Workload:
         if self.cpuMax is None:
             return None
 
-        return self.roundProperToHuman(self.cpuMax * self.CPU_REQUEST_MAXIMUM_FACTOR)
+        return self.roundProperToHuman(self.cpuMax * self.CPU_REQUEST_MAXIMUM_FACTOR, 100)
 
-    def roundProperToHuman(self, value):
+    def roundProperToHuman(self, value, minValue = 0):
         valueInt = math.ceil(value)
-        if valueInt <= 5 : # value is 0..5 round up to  5
+        if valueInt <= 5 and minValue <= 5: # value is 0..5 round up to  5
             return 5
-        if valueInt < 1000:  # value is 6..999 round up to 10
+        if valueInt < 100 and minValue <= 10:  # value is 6..99 round up to 10
             return math.ceil(value/10)*10
+        if valueInt < 500 and minValue <= 50:  # value is 100..999 round up to 10
+            return math.ceil(value/50)*50
         
         return math.ceil(value/100)*100 # value is equal or over 1000, round up to 100
