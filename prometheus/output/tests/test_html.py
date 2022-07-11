@@ -4,6 +4,7 @@ from prometheus.metric.workload import Workload
 
 from prometheus.output.html import Html
 
+
 @pytest.fixture
 def workloadList():
     wl = Workload("test_pod", "ns", "type")
@@ -26,7 +27,7 @@ def test_html_generation(capsys, workloadList):
     html = Html()
     html.setBody(workloadList)
 
-#    with capsys.disabled():
-#        html.dump()
+    #    with capsys.disabled():
+    #        html.dump()
 
-    assert len(html.soup.find_all('tr')) == 2
+    assert len(html.soup.find_all("tr")) == 2
