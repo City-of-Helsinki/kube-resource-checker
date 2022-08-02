@@ -33,7 +33,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Show workload memory and cpu usage (max, avg, min) vs request and limit",
+      "description": "Kubernetes workloads memory and cpu usage (max, avg, min), request and limit. This helps to clarify correct request and limit values for Kubernetes deployment.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -67,7 +67,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Memory average workload consumption"
+                "value": "Memory average"
               }
             ]
           },
@@ -79,7 +79,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Memory max workload consumption"
+                "value": "Memory max"
               }
             ]
           },
@@ -91,7 +91,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Memory min workload consumption"
+                "value": "Memory min"
               }
             ]
           },
@@ -127,7 +127,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Cpu average workload consumption"
+                "value": "Cpu average"
               }
             ]
           },
@@ -139,7 +139,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Cpu max workload consumption"
+                "value": "Cpu max"
               }
             ]
           },
@@ -151,7 +151,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Cpu min workload consumption"
+                "value": "Cpu min"
               }
             ]
           },
